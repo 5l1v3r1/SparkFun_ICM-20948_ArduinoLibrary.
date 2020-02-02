@@ -42,6 +42,8 @@ extern "C"
 
 		ICM_20948_Stat_NUM,
 		ICM_20948_Stat_Unknown,
+		
+		ICM_20948_Invalid_Source,
 	} ICM_20948_Status_e;
 
 	typedef enum
