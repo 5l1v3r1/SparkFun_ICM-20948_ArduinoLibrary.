@@ -854,7 +854,7 @@ ICM_20948_Status_e ICM_20948_fifo_acc_gyr_tem_enable(ICM_20948_Device_t *pdev, b
   	return retval;
 }
 
-ICM_20948_Status_e ICM_20948_fifo_reset(ICM_20948_Device_t *pdev) 
+ICM_20948_Status_e ICM_20948_fifo_reset(ICM_20948_Device_t *pdev, uint8_t value) 
 {
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
 	ICM_20948_FIFO_RST_t reg;
@@ -866,15 +866,8 @@ ICM_20948_Status_e ICM_20948_fifo_reset(ICM_20948_Device_t *pdev)
     		return retval;
   	}
 
-	reg.FIFO_RESET = 1;
-  	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_RST, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_RST_t));
-
-  	if (retval != ICM_20948_Stat_Ok)
-  	{
-    		return retval;
-  	}
-
-  	reg.FIFO_RESET = 0;
+	reg.FIFO_RESET = value;
+	
   	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_RST, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_RST_t));
 
   	if (retval != ICM_20948_Stat_Ok)
