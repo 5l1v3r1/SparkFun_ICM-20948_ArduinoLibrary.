@@ -32,7 +32,7 @@ public:
     ICM_20948(); // Constructor
 
     ICM_20948_AGMT_t agmt;          // Acceleometer, Gyroscope, Magenetometer, and Temperature data
-    ICM_20948_AGMT_t getAGMT(void); // Updates the agmt field in the object and also returns a copy directly
+    ICM_20948_AGMT_t getAGMT(bool fifo); // Updates the agmt field in the object and also returns a copy directly
 
     float magX(void); // micro teslas
     float magY(void); // micro teslas
