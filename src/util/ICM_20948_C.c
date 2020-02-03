@@ -1019,9 +1019,28 @@ ICM_20948_Status_e ICM_20948_get_fifo_agmt(ICM_20948_Device_t *pdev, ICM_20948_A
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
 	const uint8_t numbytes = 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
 	uint8_t buff[numbytes];
-
-	// Get readings
+	
 	retval |= ICM_20948_set_bank(pdev, 0);
+	
+	// Clean up fifo before real reading 
+	uint16_t fifoCount = ICM_20948_fifo_count(pdev);
+	if (fifoCount > 500)
+     	{
+       		while (fifoCount > 100)
+       		{
+         		uint8_t tmp[numbytes]; // temporary buffer
+         		ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, tmp, numbytes);
+         		fifoCount = ICM_20948_fifo_count(pdev);
+       		}
+     	}
+     
+     	while (fifoCount < numbytes);
+       	{
+		delay(5);
+         	fifoCount = ICM_20948_fifo_count(pdev);
+       	}
+	
+	// Get readings
 	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, buff, numbytes);
 
 	pagmt->acc.axes.x = ((buff[0] << 8) | (buff[1] & 0xFF));
@@ -1055,4 +1074,3 @@ ICM_20948_Status_e ICM_20948_get_fifo_agmt(ICM_20948_Device_t *pdev, ICM_20948_A
 
 	return retval;
 }
-
