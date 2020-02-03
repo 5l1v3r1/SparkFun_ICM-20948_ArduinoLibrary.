@@ -1077,3 +1077,9 @@ ICM_20948_Status_e ICM_20948::setFifoCfg()
     status = ICM_20948_fifo_cfg(&_device);
     return status;
 }
+
+ICM_20948_Status_e ICM_20948::cleanupFifo()
+{
+    status = ICM_20948_fifo_cleanup(&_device);
+    return status;
+}
