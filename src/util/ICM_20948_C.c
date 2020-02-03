@@ -780,7 +780,43 @@ ICM_20948_Status_e ICM_20948_i2c_master_configure_slave(ICM_20948_Device_t *pdev
 	return retval;
 }
 
-ICM_20948_Status_e ICM_20948_fifo_acc_gyr_enable(ICM_20948_Device_t *pdev, bool enable) 
+ICM_20948_Status_e ICM_20948_fifo_slv_enable(ICM_20948_Device_t *pdev, bool enable) 
+{
+	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	ICM_20948_FIFO_EN_1_t reg;
+	retval = ICM_20948_set_bank(pdev, 0);
+	
+	if (retval != ICM_20948_Stat_Ok)
+	{
+    		return retval;
+  	}
+	
+	if (enable)
+	{
+		SLV_0_FIFO_EN = 1;
+		SLV_1_FIFO_EN = 1
+		SLV_2_FIFO_EN = 1;
+		SLV_3_FIFO_EN = 1;
+  	}
+  	else
+  	{
+		SLV_0_FIFO_EN = 0;
+		SLV_1_FIFO_EN = 0
+		SLV_2_FIFO_EN = 0;
+		SLV_3_FIFO_EN = 0;
+  	}
+
+  	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_EN_1, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_EN_1_t));
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+    
+  	return retval;
+}
+
+ICM_20948_Status_e ICM_20948_fifo_acc_gyr_tem_enable(ICM_20948_Device_t *pdev, bool enable) 
 {
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
 	ICM_20948_FIFO_EN_2_t reg;
@@ -797,6 +833,7 @@ ICM_20948_Status_e ICM_20948_fifo_acc_gyr_enable(ICM_20948_Device_t *pdev, bool 
 		reg.GYRO_Y_FIFO_EN = 1;
 		reg.GYRO_Z_FIFO_EN = 1;
 		reg.ACCEL_FIFO_EN  = 1;
+		reg.TEMP_FIFO_EN   = 1;
   	}
   	else
   	{
@@ -804,6 +841,7 @@ ICM_20948_Status_e ICM_20948_fifo_acc_gyr_enable(ICM_20948_Device_t *pdev, bool 
     		reg.GYRO_Y_FIFO_EN = 0;
     		reg.GYRO_Z_FIFO_EN = 0;
     		reg.ACCEL_FIFO_EN  = 0;
+		reg.TEMP_FIFO_EN   = 0;
   	}
 
   	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_EN_2, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_EN_2_t));
@@ -847,6 +885,23 @@ ICM_20948_Status_e ICM_20948_fifo_reset(ICM_20948_Device_t *pdev)
   	return retval;
 }
 
+ICM_20948_Status_e ICM_20948_fifo_cfg(ICM_20948_Device_t *pdev) 
+{
+	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	ICM_20948_FIFO_CFG_t reg;
+	
+	reg.FIFO_CFG = 0;
+	
+	etval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_CFG, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_CFG_t));
+	
+	if (retval != ICM_20948_Stat_Ok)
+	{
+		return retval;
+	}
+
+  	return retval;
+}
+
 ICM_20948_Status_e ICM_20948_fifo_enable(ICM_20948_Device_t *pdev, bool enable) 
 {
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
@@ -862,10 +917,14 @@ ICM_20948_Status_e ICM_20948_fifo_enable(ICM_20948_Device_t *pdev, bool enable)
   	if (enable)
   	{
     		reg.FIFO_EN = 1;
+		reg.DMP_EN  = 0;
+                reg.DMP_RST = 1;
   	}
   	else
   	{
     		reg.FIFO_EN = 0;
+		reg.DMP_EN  = 0;
+                reg.DMP_RST = 0;
   	}
 
   	retval = ICM_20948_execute_w(pdev, AGB0_REG_USER_CTRL, (uint8_t *)&reg, sizeof(ICM_20948_USER_CTRL_t));
@@ -969,7 +1028,7 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 	}
 
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
-	const uint8_t numbytes =  (fifo) ? 12 : 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
+	const uint8_t numbytes =  (fifo) ? 14 : 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
 	
 	uint8_t buff[numbytes];
 	
@@ -1014,10 +1073,10 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 	pagmt->gyr.axes.y = ((buff[8] << 8) | (buff[9] & 0xFF));
 	pagmt->gyr.axes.z = ((buff[10] << 8) | (buff[11] & 0xFF));
 
+	pagmt->tmp.val = ((buff[12] << 8) | (buff[13] & 0xFF));
+	
 	if (!fifo)
 	{
-		pagmt->tmp.val = ((buff[12] << 8) | (buff[13] & 0xFF));
-
 		pagmt->magStat1 = buff[14];
 		pagmt->mag.axes.x = ((buff[16] << 8) | (buff[15] & 0xFF)); //Mag data is read little endian
 		pagmt->mag.axes.y = ((buff[18] << 8) | (buff[17] & 0xFF));
