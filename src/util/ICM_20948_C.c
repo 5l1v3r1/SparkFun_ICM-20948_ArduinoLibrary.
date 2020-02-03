@@ -994,11 +994,13 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 			}
 		}
 
-		while (fifoCount < numbytes)
-		{
-			delay(5);
-			fifoCount = ICM_20948_fifo_count(pdev);
-		}
+		if (fifoCount < numbytes)
+                {
+			do 
+			{
+				fifoCount = ICM_20948_fifo_count(pdev);
+			} while (fifoCount < numbytes);
+                }
 		
 		// Get readings from FIFO
 		retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, buff, numbytes);
