@@ -960,56 +960,8 @@ bool ICM_20948_fifo_data_ready(ICM_20948_Device_t *pdev)
   	return retval;
 }
 
-// Higher Level
-ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *pagmt)
-{
-	if (pagmt == NULL)
-	{
-		return ICM_20948_Stat_ParamErr;
-	}
-	
-	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
-	const uint8_t numbytes = 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
-	uint8_t buff[numbytes];
-
-	// Get readings
-	retval |= ICM_20948_set_bank(pdev, 0);
-	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_ACCEL_XOUT_H, buff, numbytes);
-
-	pagmt->acc.axes.x = ((buff[0] << 8) | (buff[1] & 0xFF));
-	pagmt->acc.axes.y = ((buff[2] << 8) | (buff[3] & 0xFF));
-	pagmt->acc.axes.z = ((buff[4] << 8) | (buff[5] & 0xFF));
-
-	pagmt->gyr.axes.x = ((buff[6] << 8) | (buff[7] & 0xFF));
-	pagmt->gyr.axes.y = ((buff[8] << 8) | (buff[9] & 0xFF));
-	pagmt->gyr.axes.z = ((buff[10] << 8) | (buff[11] & 0xFF));
-
-	pagmt->tmp.val = ((buff[12] << 8) | (buff[13] & 0xFF));
-
-	pagmt->magStat1 = buff[14];
-	pagmt->mag.axes.x = ((buff[16] << 8) | (buff[15] & 0xFF)); //Mag data is read little endian
-	pagmt->mag.axes.y = ((buff[18] << 8) | (buff[17] & 0xFF));
-	pagmt->mag.axes.z = ((buff[20] << 8) | (buff[19] & 0xFF));
-	pagmt->magStat2 = buff[22];
-
-	// Get settings to be able to compute scaled values
-	retval |= ICM_20948_set_bank(pdev, 2);
-	ICM_20948_ACCEL_CONFIG_t acfg;
-	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB2_REG_ACCEL_CONFIG, (uint8_t *)&acfg, 1 * sizeof(acfg));
-	pagmt->fss.a = acfg.ACCEL_FS_SEL; // Worth noting that without explicitly setting the FS range of the accelerometer it was showing the register value for +/- 2g but the reported values were actually scaled to the +/- 16g range
-									  // Wait a minute... now it seems like this problem actually comes from the digital low-pass filter. When enabled the value is 1/8 what it should be...
-	retval |= ICM_20948_set_bank(pdev, 2);
-	ICM_20948_GYRO_CONFIG_1_t gcfg1;
-	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB2_REG_GYRO_CONFIG_1, (uint8_t *)&gcfg1, 1 * sizeof(gcfg1));
-	pagmt->fss.g = gcfg1.GYRO_FS_SEL;
-	ICM_20948_ACCEL_CONFIG_2_t acfg2;
-	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB2_REG_ACCEL_CONFIG_2, (uint8_t *)&acfg2, 1 * sizeof(acfg2));
-
-	return retval;
-}
-
-// Higher Level FIFO
-ICM_20948_Status_e ICM_20948_get_fifo_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *pagmt)
+// Higher Level 
+ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *pagmt, bool fifo)
 {
 	if (pagmt == NULL)
 	{
@@ -1022,26 +974,34 @@ ICM_20948_Status_e ICM_20948_get_fifo_agmt(ICM_20948_Device_t *pdev, ICM_20948_A
 	
 	retval |= ICM_20948_set_bank(pdev, 0);
 	
-	// Clean up fifo before real reading 
-	uint16_t fifoCount = ICM_20948_fifo_count(pdev);
-	if (fifoCount > 500)
-     	{
-       		while (fifoCount > 100)
-       		{
-         		uint8_t tmp[numbytes]; // temporary buffer
-         		ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, tmp, numbytes);
-         		fifoCount = ICM_20948_fifo_count(pdev);
-       		}
-     	}
-     
-     	while (fifoCount < numbytes)
-       	{
-		delay(5);
-         	fifoCount = ICM_20948_fifo_count(pdev);
-       	}
-	
-	// Get readings
-	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, buff, numbytes);
+	if (fifo) 
+	{
+		// Clean up fifo before real reading 
+		uint16_t fifoCount = ICM_20948_fifo_count(pdev);
+		if (fifoCount > 500)
+		{
+			while (fifoCount > 100)
+			{
+				uint8_t tmp[numbytes]; // temporary buffer
+				ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, tmp, numbytes);
+				fifoCount = ICM_20948_fifo_count(pdev);
+			}
+		}
+
+		while (fifoCount < numbytes)
+		{
+			delay(5);
+			fifoCount = ICM_20948_fifo_count(pdev);
+		}
+		
+		// Get readings from FIFO
+		retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, buff, numbytes);
+	}
+	else
+	{
+		// Get readings
+		retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_ACCEL_XOUT_H, buff, numbytes);
+	}
 
 	pagmt->acc.axes.x = ((buff[0] << 8) | (buff[1] & 0xFF));
 	pagmt->acc.axes.y = ((buff[2] << 8) | (buff[3] & 0xFF));
