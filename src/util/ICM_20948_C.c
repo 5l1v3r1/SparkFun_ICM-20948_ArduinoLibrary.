@@ -1034,7 +1034,7 @@ ICM_20948_Status_e ICM_20948_get_fifo_agmt(ICM_20948_Device_t *pdev, ICM_20948_A
        		}
      	}
      
-     	while (fifoCount < numbytes);
+     	while (fifoCount < numbytes)
        	{
 		delay(5);
          	fifoCount = ICM_20948_fifo_count(pdev);
