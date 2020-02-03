@@ -216,7 +216,7 @@ callbacks for the user to respond to interrupt events
 	ICM_20948_Status_e ICM_20948_set_fifo_mode(ICM_20948_Device_t *pdev, bool stream);
 	uint16_t ICM_20948_fifo_count(ICM_20948_Device_t *pdev);
 	bool ICM_20948_fifo_data_ready(ICM_20948_Device_t *pdev);
-	void ICM_20948_fifo_cleanup(ICM_20948_Device_t *pdev);
+	ICM_20948_Status_e ICM_20948_fifo_cleanup(ICM_20948_Device_t *pdev);
 	
 	// Higher Level
 	ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *p, bool fifo);
