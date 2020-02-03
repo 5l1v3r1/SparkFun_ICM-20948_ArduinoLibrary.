@@ -116,10 +116,12 @@ public:
     ICM_20948_Status_e writeMag(AK09916_Reg_Addr_e reg, uint8_t *pdata);
     
     //FIFO specific
-    ICM_20948_Status_e enableFifoAccGyr(bool enable);
-    ICM_20948_Status_e resetFifo(void);
+    ICM_20948_Status_e enableFifoSlv(bool enable);
+    ICM_20948_Status_e enableFifoAGT(bool enable);
+    ICM_20948_Status_e resetFifo(uint8_t value);
     ICM_20948_Status_e enableFifo(bool enable);
     ICM_20948_Status_e setFifoMode(bool stream);
+    ICM_20948_Status_e setFifoCfg(void);
 };
 
 // I2C
