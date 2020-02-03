@@ -116,7 +116,7 @@ public:
     ICM_20948_Status_e writeMag(AK09916_Reg_Addr_e reg, uint8_t *pdata);
     
     //FIFO specific
-    ICM_20948_Status_e ICM_20948::enableFifoAGMT(bool enable);
+    ICM_20948_Status_e ICM_20948::enableFifoAccGyr(bool enable);
     ICM_20948_Status_e ICM_20948::enableFifoReset(void);
     ICM_20948_Status_e ICM_20948::enableFifo(bool enable);
     ICM_20948_Status_e ICM_20948::setFifoMode(bool stream);
