@@ -207,6 +207,14 @@ callbacks for the user to respond to interrupt events
 	ICM_20948_Status_e ICM_20948_i2c_master_reset(ICM_20948_Device_t *pdev);
 	ICM_20948_Status_e ICM_20948_i2c_master_configure_slave(ICM_20948_Device_t *pdev, uint8_t slave, uint8_t addr, uint8_t reg, uint8_t len, bool Rw, bool enable, bool data_only, bool grp, bool swap);
 
+	// FIFO Related
+	ICM_20948_Status_e ICM_20948_fifo_acc_gyro_enable(ICM_20948_Device_t *pdev, bool enable);
+	ICM_20948_Status_e ICM_20948_fifo_reset(ICM_20948_Device_t *pdev);
+	ICM_20948_Status_e ICM_20948_fifo_enable(ICM_20948_Device_t *pdev, bool enable);
+	ICM_20948_Status_e ICM_20948_set_fifo_mode(ICM_20948_Device_t *pdev, bool stream);
+	uint16_t ICM_20948_fifo_count(ICM_20948_Device_t *pdev);
+	bool ICM_20948_fifo_data_ready(ICM_20948_Device_t *pdev);
+	
 	// Higher Level
 	ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *p, bool fifo);
 
