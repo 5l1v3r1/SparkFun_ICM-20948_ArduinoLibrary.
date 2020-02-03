@@ -794,14 +794,14 @@ ICM_20948_Status_e ICM_20948_fifo_slv_enable(ICM_20948_Device_t *pdev, bool enab
 	if (enable)
 	{
 		SLV_0_FIFO_EN = 1;
-		SLV_1_FIFO_EN = 1
+		SLV_1_FIFO_EN = 1;
 		SLV_2_FIFO_EN = 1;
 		SLV_3_FIFO_EN = 1;
   	}
   	else
   	{
 		SLV_0_FIFO_EN = 0;
-		SLV_1_FIFO_EN = 0
+		SLV_1_FIFO_EN = 0;
 		SLV_2_FIFO_EN = 0;
 		SLV_3_FIFO_EN = 0;
   	}
@@ -885,7 +885,7 @@ ICM_20948_Status_e ICM_20948_fifo_cfg(ICM_20948_Device_t *pdev)
 	
 	reg.FIFO_CFG = 0;
 	
-	etval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_CFG, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_CFG_t));
+	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_CFG, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_CFG_t));
 	
 	if (retval != ICM_20948_Stat_Ok)
 	{
