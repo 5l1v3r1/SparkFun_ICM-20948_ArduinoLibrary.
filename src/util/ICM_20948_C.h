@@ -208,9 +208,7 @@ callbacks for the user to respond to interrupt events
 	ICM_20948_Status_e ICM_20948_i2c_master_configure_slave(ICM_20948_Device_t *pdev, uint8_t slave, uint8_t addr, uint8_t reg, uint8_t len, bool Rw, bool enable, bool data_only, bool grp, bool swap);
 
 	// Higher Level
-	ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *p);
-
-	ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *p);
+	ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *p, bool fifo);
 
 	// ToDo:
 
