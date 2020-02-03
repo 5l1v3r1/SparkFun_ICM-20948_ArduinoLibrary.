@@ -969,12 +969,7 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 	}
 
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
-	const uint8_t numbytes = 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
-	
-	if (fifo) 
-	{
-		numbytes = 12; //Read Accel and gyro only
-	}
+	const uint8_t numbytes =  (fifo) ? 12 : 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
 	
 	uint8_t buff[numbytes];
 	
