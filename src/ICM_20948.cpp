@@ -1048,7 +1048,7 @@ ICM_20948_Status_e ICM_20948::enableFifoAccGyr(bool enable = true)
     return status;
 }
 
-ICM_20948_Status_e ICM_20948::enableFifoReset()
+ICM_20948_Status_e ICM_20948::resetFifo()
 {
     status = ICM_20948_fifo_reset(&_device);
     return status;
