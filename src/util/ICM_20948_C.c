@@ -780,7 +780,7 @@ ICM_20948_Status_e ICM_20948_i2c_master_configure_slave(ICM_20948_Device_t *pdev
 	return retval;
 }
 
-ICM_20948_Status_e ICM_20948_fifo_acc_gyro_enable(ICM_20948_Device_t *pdev, bool enable) 
+ICM_20948_Status_e ICM_20948_fifo_acc_gyr_enable(ICM_20948_Device_t *pdev, bool enable) 
 {
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
 	ICM_20948_FIFO_EN_2_t reg;
