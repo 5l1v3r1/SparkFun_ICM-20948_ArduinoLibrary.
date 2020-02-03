@@ -1042,7 +1042,7 @@ ICM_20948_Status_e ICM_20948_read_SPI(uint8_t reg, uint8_t *buff, uint32_t len, 
     return ICM_20948_Stat_Ok;
 }
 
-ICM_20948_Status_e ICM_20948::enableFifoAGMT(bool enable = true)
+ICM_20948_Status_e ICM_20948::enableFifoAccGyr(bool enable = true)
 {
     status = ICM_20948_fifo_agmt_enable(&_device, enable);
     return status;
