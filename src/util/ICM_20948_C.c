@@ -907,6 +907,13 @@ ICM_20948_Status_e ICM_20948_fifo_enable(ICM_20948_Device_t *pdev, bool enable)
     		return retval;
   	}
 
+  	retval = ICM_20948_execute_r(pdev, AGB0_REG_USER_CTRL, (uint8_t *)&reg, sizeof(ICM_20948_USER_CTRL_t));
+	
+	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
   	if (enable)
   	{
     		reg.FIFO_EN = 1;
