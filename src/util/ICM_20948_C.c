@@ -970,6 +970,12 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
 	const uint8_t numbytes = 14 + 9; //Read Accel, gyro, temp, and 9 bytes of mag
+	
+	if (fifo) 
+	{
+		numbytes = 12; //Read Accel and gyro only
+	}
+	
 	uint8_t buff[numbytes];
 	
 	retval |= ICM_20948_set_bank(pdev, 0);
@@ -1011,13 +1017,16 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 	pagmt->gyr.axes.y = ((buff[8] << 8) | (buff[9] & 0xFF));
 	pagmt->gyr.axes.z = ((buff[10] << 8) | (buff[11] & 0xFF));
 
-	pagmt->tmp.val = ((buff[12] << 8) | (buff[13] & 0xFF));
+	if (!fifo)
+	{
+		pagmt->tmp.val = ((buff[12] << 8) | (buff[13] & 0xFF));
 
-	pagmt->magStat1 = buff[14];
-	pagmt->mag.axes.x = ((buff[16] << 8) | (buff[15] & 0xFF)); //Mag data is read little endian
-	pagmt->mag.axes.y = ((buff[18] << 8) | (buff[17] & 0xFF));
-	pagmt->mag.axes.z = ((buff[20] << 8) | (buff[19] & 0xFF));
-	pagmt->magStat2 = buff[22];
+		pagmt->magStat1 = buff[14];
+		pagmt->mag.axes.x = ((buff[16] << 8) | (buff[15] & 0xFF)); //Mag data is read little endian
+		pagmt->mag.axes.y = ((buff[18] << 8) | (buff[17] & 0xFF));
+		pagmt->mag.axes.z = ((buff[20] << 8) | (buff[19] & 0xFF));
+		pagmt->magStat2 = buff[22];
+	}
 
 	// Get settings to be able to compute scaled values
 	retval |= ICM_20948_set_bank(pdev, 2);
