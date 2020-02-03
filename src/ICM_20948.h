@@ -122,6 +122,7 @@ public:
     ICM_20948_Status_e enableFifo(bool enable);
     ICM_20948_Status_e setFifoMode(bool stream);
     ICM_20948_Status_e setFifoCfg(void);
+    ICM_20948_Status_e cleanupFifo(void);
 };
 
 // I2C
