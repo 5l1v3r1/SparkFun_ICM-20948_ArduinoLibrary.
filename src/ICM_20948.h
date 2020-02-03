@@ -117,7 +117,7 @@ public:
     
     //FIFO specific
     ICM_20948_Status_e ICM_20948::enableFifoAccGyr(bool enable);
-    ICM_20948_Status_e ICM_20948::enableFifoReset(void);
+    ICM_20948_Status_e ICM_20948::resetFifo(void);
     ICM_20948_Status_e ICM_20948::enableFifo(bool enable);
     ICM_20948_Status_e ICM_20948::setFifoMode(bool stream);
 };
