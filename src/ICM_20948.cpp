@@ -1042,15 +1042,21 @@ ICM_20948_Status_e ICM_20948_read_SPI(uint8_t reg, uint8_t *buff, uint32_t len, 
     return ICM_20948_Stat_Ok;
 }
 
-ICM_20948_Status_e ICM_20948::enableFifoAccGyr(bool enable = true)
+ICM_20948_Status_e ICM_20948::enableFifoSlv(bool enable = true)
 {
-    status = ICM_20948_fifo_acc_gyr_enable(&_device, enable);
+    status = ICM_20948_fifo_slv_enable(&_device, enable);
     return status;
 }
 
-ICM_20948_Status_e ICM_20948::resetFifo()
+ICM_20948_Status_e ICM_20948::enableFifoAGT(bool enable = true)
 {
-    status = ICM_20948_fifo_reset(&_device);
+    status = ICM_20948_fifo_acc_gyr_tem_enable(&_device, enable);
+    return status;
+}
+
+ICM_20948_Status_e ICM_20948::resetFifo(uint8_t value)
+{
+    status = ICM_20948_fifo_reset(&_device, value);
     return status;
 }
 
@@ -1063,5 +1069,11 @@ ICM_20948_Status_e ICM_20948::enableFifo(bool enable = true)
 ICM_20948_Status_e ICM_20948::setFifoMode(bool stream = true)
 {
     status = ICM_20948_set_fifo_mode(&_device, stream);
+    return status;
+}
+
+ICM_20948_Status_e ICM_20948::setFifoCfg()
+{
+    status = ICM_20948_set_fifo_cfg(&_device);
     return status;
 }
