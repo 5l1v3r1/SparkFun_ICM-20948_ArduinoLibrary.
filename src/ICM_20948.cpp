@@ -1074,6 +1074,6 @@ ICM_20948_Status_e ICM_20948::setFifoMode(bool stream = true)
 
 ICM_20948_Status_e ICM_20948::setFifoCfg()
 {
-    status = ICM_20948_set_fifo_cfg(&_device);
+    status = ICM_20948_fifo_cfg(&_device);
     return status;
 }
