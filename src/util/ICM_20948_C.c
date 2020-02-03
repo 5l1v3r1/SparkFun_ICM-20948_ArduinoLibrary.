@@ -1019,6 +1019,29 @@ bool ICM_20948_fifo_data_ready(ICM_20948_Device_t *pdev)
   	return retval;
 }
 
+ICM_20948_Status_e ICM_20948_fifo_cleanup(ICM_20948_Device_t *pdev) 
+{
+	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	retval |= ICM_20948_set_bank(pdev, 0);
+	
+	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+	
+	const uint8_t numbytes = 16;
+	uint8_t buff[numbytes];
+	
+	uint16_t fifoCount = ICM_20948_fifo_count(pdev);
+	while (fifoCount)
+	{
+		retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, buff, (fifoCount > numbytes) ? numbytes : fifoCount);
+		fifoCount = ICM_20948_fifo_count(pdev);
+	}
+
+  	return retval;
+}
+
 // Higher Level 
 ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *pagmt, bool fifo)
 {
@@ -1043,7 +1066,8 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 			while (fifoCount > 100)
 			{
 				uint8_t tmp[numbytes]; // temporary buffer
-				ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, tmp, numbytes);
+				retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_FIFO_R_W, tmp, numbytes);
+				
 				fifoCount = ICM_20948_fifo_count(pdev);
 			}
 		}
