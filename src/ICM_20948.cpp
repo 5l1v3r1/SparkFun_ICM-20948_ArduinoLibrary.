@@ -14,9 +14,9 @@ ICM_20948::ICM_20948()
 {
 }
 
-ICM_20948_AGMT_t ICM_20948::getAGMT(void)
+ICM_20948_AGMT_t ICM_20948::getAGMT(bool fifo = false)
 {
-    status = ICM_20948_get_agmt(&_device, &agmt);
+    status = ICM_20948_get_agmt(&_device, &agmt, fifo);
 
     return agmt;
 }
@@ -1040,4 +1040,28 @@ ICM_20948_Status_e ICM_20948_read_SPI(uint8_t reg, uint8_t *buff, uint32_t len, 
     digitalWrite(cs, HIGH);
 
     return ICM_20948_Stat_Ok;
+}
+
+ICM_20948_Status_e ICM_20948::enableFifoAGMT(bool enable = true)
+{
+    status = ICM_20948_fifo_agmt_enable(&_device, enable);
+    return status;
+}
+
+ICM_20948_Status_e ICM_20948::enableFifoReset()
+{
+    status = ICM_20948_fifo_reset(&_device);
+    return status;
+}
+
+ICM_20948_Status_e ICM_20948::enableFifo(bool enable = true)
+{
+    status = ICM_20948_fifo_enable(&_device, enable);
+    return status;
+}
+
+ICM_20948_Status_e ICM_20948::setFifoMode(bool stream = true)
+{
+    status = ICM_20948_set_fifo_mode(&_device, stream);
+    return status;
 }
