@@ -780,12 +780,197 @@ ICM_20948_Status_e ICM_20948_i2c_master_configure_slave(ICM_20948_Device_t *pdev
 	return retval;
 }
 
+ICM_20948_Status_e ICM_20948_fifo_acc_gyro_enable(ICM_20948_Device_t *pdev, bool enable) 
+{
+	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	ICM_20948_FIFO_EN_2_t reg;
+	retval = ICM_20948_set_bank(pdev, 0);
+	
+	if (retval != ICM_20948_Stat_Ok)
+	{
+    		return retval;
+  	}
+	
+	if (enable)
+	{
+		reg.GYRO_X_FIFO_EN = 1;
+		reg.GYRO_Y_FIFO_EN = 1;
+		reg.GYRO_Z_FIFO_EN = 1;
+		reg.ACCEL_FIFO_EN  = 1;
+  	}
+  	else
+  	{
+    		reg.GYRO_X_FIFO_EN = 0;
+    		reg.GYRO_Y_FIFO_EN = 0;
+    		reg.GYRO_Z_FIFO_EN = 0;
+    		reg.ACCEL_FIFO_EN  = 0;
+  	}
+
+  	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_EN_2, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_EN_2_t));
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+    
+  	return retval;
+}
+
+ICM_20948_Status_e ICM_20948_fifo_reset(ICM_20948_Device_t *pdev) 
+{
+	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	ICM_20948_FIFO_RST_t reg;
+  
+	retval = ICM_20948_set_bank(pdev, 0);
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+	reg.FIFO_RESET = 1;
+  	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_RST, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_RST_t));
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	reg.FIFO_RESET = 0;
+  	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_RST, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_RST_t));
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	return retval;
+}
+
+ICM_20948_Status_e ICM_20948_fifo_enable(ICM_20948_Device_t *pdev, bool enable) 
+{
+	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	ICM_20948_USER_CTRL_t reg;
+  
+	retval = ICM_20948_set_bank(pdev, 0);
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	if (enable)
+  	{
+    		reg.FIFO_EN = 1;
+  	}
+  	else
+  	{
+    		reg.FIFO_EN = 0;
+  	}
+
+  	retval = ICM_20948_execute_w(pdev, AGB0_REG_USER_CTRL, (uint8_t *)&reg, sizeof(ICM_20948_USER_CTRL_t));
+  	
+	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	return retval;
+}
+
+ICM_20948_Status_e ICM_20948_set_fifo_mode(ICM_20948_Device_t *pdev, bool stream) 
+{
+  	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+  	ICM_20948_FIFO_MODE_t reg;
+  
+	retval = ICM_20948_set_bank(pdev, 0);
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	if (stream)
+  	{
+    		reg.FIFO_MODE = 0;
+  	}
+  	else
+  	{
+    		reg.FIFO_MODE = 1;
+  	}
+
+  	retval = ICM_20948_execute_w(pdev, AGB0_REG_FIFO_MODE, (uint8_t *)&reg, sizeof(ICM_20948_FIFO_MODE_t));
+  
+	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	return retval;
+}
+
+uint16_t ICM_20948_fifo_count(ICM_20948_Device_t *pdev) 
+{
+  	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+  	uint8_t data[2];
+
+  	retval = ICM_20948_set_bank(pdev, 0);
+
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	retval = ICM_20948_execute_r(pdev, AGB0_REG_FIFO_COUNT_H, &data[0], 2);
+	
+  	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	uint16_t fifoCount = ( (uint16_t)(data[0] << 8) | data[1] );
+
+  	return fifoCount;
+}
+
+bool ICM_20948_fifo_data_ready(ICM_20948_Device_t *pdev) 
+{
+  	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
+	ICM_20948_DATA_RDY_STATUS_t reg;
+  	
+	retval = ICM_20948_set_bank(pdev, 0);
+	
+	if (retval != ICM_20948_Stat_Ok)
+	{
+		return retval;
+	}
+
+  	retval =  ICM_20948_execute_r(pdev, AGB0_REG_DATA_RDY_STATUS, (uint8_t *)&reg, sizeof(ICM_20948_DATA_RDY_STATUS_t));
+  
+	if (retval != ICM_20948_Stat_Ok)
+  	{
+    		return retval;
+  	}
+
+  	if (!reg.RAW_DATA_RDY)
+	{
+    		retval = ICM_20948_Stat_NoData;
+  	}
+
+  	return retval;
+}
+
 // Higher Level
-ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *pagmt)
+ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t *pagmt, ICM_20948_Reg_Addr_e source)
 {
 	if (pagmt == NULL)
 	{
 		return ICM_20948_Stat_ParamErr;
+	}
+	
+	if (source != AGB0_REG_ACCEL_XOUT_H && source != AGB0_REG_FIFO_R_W)
+	{
+		return ICM_20948_Invalid_Source;
 	}
 
 	ICM_20948_Status_e retval = ICM_20948_Stat_Ok;
@@ -794,7 +979,7 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 
 	// Get readings
 	retval |= ICM_20948_set_bank(pdev, 0);
-	retval |= ICM_20948_execute_r(pdev, (uint8_t)AGB0_REG_ACCEL_XOUT_H, buff, numbytes);
+	retval |= ICM_20948_execute_r(pdev, (uint8_t)source, buff, numbytes);
 
 	pagmt->acc.axes.x = ((buff[0] << 8) | (buff[1] & 0xFF));
 	pagmt->acc.axes.y = ((buff[2] << 8) | (buff[3] & 0xFF));
@@ -827,3 +1012,4 @@ ICM_20948_Status_e ICM_20948_get_agmt(ICM_20948_Device_t *pdev, ICM_20948_AGMT_t
 
 	return retval;
 }
+
