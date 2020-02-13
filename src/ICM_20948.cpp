@@ -14,7 +14,7 @@ ICM_20948::ICM_20948()
 {
 }
 
-ICM_20948_AGMT_t ICM_20948::getAGMT(bool fifo = false)
+ICM_20948_AGMT_t ICM_20948::getAGMT(bool fifo)
 {
     status = ICM_20948_get_agmt(&_device, &agmt, fifo);
 
