@@ -1083,3 +1083,9 @@ ICM_20948_Status_e ICM_20948::cleanupFifo()
     status = ICM_20948_fifo_cleanup(&_device);
     return status;
 }
+
+uint16_t ICM_20948::getFifoCount()
+{
+    uint16_t fifo_count = ICM_20948_fifo_count(&_device);
+    return fifo_count;
+}
