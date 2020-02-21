@@ -1,7 +1,8 @@
 /****************************************************************
- * Example1_Basics.ino
+ * Example4_Fifo.ino
  * ICM 20948 Arduino Library Demo 
- * Use the FIFO configuration to stream 9-axis IMU data
+ * Use the FIFO configuration to stream 9-axis IMU data 
+ * (accelerometer, gyrometer and temperature only)
  * Naveen Kumar
  * Original Creation Date: Feb 20 2020
  * 
@@ -58,20 +59,47 @@ void setup() {
       initialized = true;
     }
   }
+  
+  // Set sample rate
+  ICM_20948_smplrt_t mySmplrt;
+  mySmplrt.g = 43; // 25 Hz
+  myICM.setSampleRate( ICM_20948_Internal_Gyr, mySmplrt );
+  Serial.println(myICM.statusString());
+   
+  // enable low pass filter
+  myICM.enableDLPF( ICM_20948_Internal_Acc, true );
+  myICM.enableDLPF( ICM_20948_Internal_Gyr, true );
+
+  // disable fifo at the beginning, later enable it
+  myICM.enableFifo(false);
+  myICM.setFifoCfg();
+
+  // reset fifo
+  myICM.resetFifo(0x1f);
+  myICM.enableFifoSlv(false);
+  myICM.enableFifoAGT(false);
+  delay(10);
+  myICM.cleanupFifo();
+  myICM.resetFifo(0x00);
+  
+  delay(100);
 }
 
 void loop() {
-
-  if( myICM.dataReady() ){
-    myICM.getAGMT();                // The values are only updated when you call 'getAGMT'
-//    printRawAGMT( myICM.agmt );     // Uncomment this to see the raw values, taken directly from the agmt structure
-    printScaledAGMT( myICM.agmt);   // This function takes into account the sclae settings from when the measurement was made to calculate the values with units
-    delay(30);
-  }else{
-    Serial.println("Waiting for data");
-    delay(500);
-  }
+  int fifo_count = myICM.getFifoCount();
+  int samples    = fifo_count / 14; // 6 (acc) + 6 (gyr)  + 2 (temp)
   
+  if (samples > 0) {
+    for (int i = 0; i < samples; i++) {
+        myICM.getAGMT(true); // pass true to get data from FIFO, the values are only updated when you call 'getAGMT'
+        // printRawAGMT( myICM.agmt );     // Uncomment this to see the raw values, taken directly from the agmt structure
+        printScaledAGMT( myICM.agmt);   // This function takes into account the sclae settings from when the measurement was made to calculate the values with units
+        delay(1);
+    }
+  } else {
+      Serial.println("Waiting for data");
+      delay(100);
+  }
 }
 
 
