@@ -82,6 +82,11 @@ void setup() {
   myICM.cleanupFifo();
   myICM.resetFifo(0x00);
   
+  // enable fifo
+  myICM.enableFifoAGT(true);
+  myICM.setFifoMode(true);
+  myICM.enableFifo(true);
+
   delay(100);
 }
 
